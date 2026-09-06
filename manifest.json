@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Short Remover",
+  "version": "1.0.0",
+  "description": "Remove YouTube Shorts from your YouTube feed.",
+  "action": {
+    "default_popup": "src/index.html"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["src/content-script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
