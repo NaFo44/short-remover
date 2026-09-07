@@ -1,16 +1,17 @@
 (async () => {
-    const isFirefox = typeof browser !== 'undefined';
-
-    const storage = isFirefox ? browser.storage.sync : chrome.storage.sync;
-
+    const storage =
+    typeof browser !== 'undefined'
+        ? browser.storage.local
+        : chrome.storage.sync;
+        
     const { removeYtShorts = true } = await storage.get({ removeYtShorts: true });
 
     const api = globalThis.browser ?? globalThis.chrome;
 
     api.storage.onChanged.addListener((changes, areaName) => {
         if (
-            areaName === 'sync' &&
-            changes.removeYtShorts?.newValue === false
+            (areaName === 'local' || areaName === 'sync') &&
+            'removeYtShorts' in changes
         ) {
             location.reload();
         }

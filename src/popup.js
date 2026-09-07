@@ -9,15 +9,20 @@ function render(enabled) {
 }
 
 (async () => {
+  const storage =
+  typeof browser !== 'undefined'
+    ? browser.storage.local
+    : chrome.storage.sync;
+    
   const { removeYtShorts = true } =
-    await api.storage.sync.get({ removeYtShorts: true });
+    await storage.get({ removeYtShorts: true });
 
   render(removeYtShorts);
 
   toggle.addEventListener('click', async () => {
     const enabled = toggle.getAttribute('aria-pressed') !== 'true';
 
-    await api.storage.sync.set({ removeYtShorts: enabled });
+    await storage.set({ removeYtShorts: enabled });
     render(enabled);
   });
 })();
