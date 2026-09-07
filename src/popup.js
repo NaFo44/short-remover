@@ -1,23 +1,38 @@
 const api = globalThis.browser ?? globalThis.chrome;
-const toggle = document.querySelector('#toggle');
 const storage = api.storage.sync;
-const storageKey = 'removeYtShorts';
-const defaultEnabled = true;
 
-function render(enabled) {
-  toggle.checked = enabled;
+const toggle = document.querySelector('#toggle');
+const sidebarToggle = document.querySelector('#sidebar-toggle');
+
+const defaultSettings = {
+  removeYtShorts: true,
+  removeSidebarShorts: false,
+}
+
+function render(settings) {
+  toggle.checked = settings.removeYtShorts;
   toggle.setAttribute(
     'aria-label',
-    enabled ? 'Disable Shorts removal' : 'Enable Shorts removal'
+    settings.removeYtShorts ? 'Disable Shorts removal' : 'Enable Shorts removal'
   );
+
+  sidebarToggle.checked = settings.removeSidebarShorts;
 }
 
 (async () => {
-  const settings = await storage.get({ [storageKey]: defaultEnabled });
+  const settings = await storage.get(defaultSettings);
 
-  render(settings[storageKey]);
+  render(settings);
 
   toggle.addEventListener('change', async () => {
-    await storage.set({ [storageKey]: toggle.checked });
+    await storage.set({
+      removeYtShorts: toggle.checked,
+    });
+  });
+
+  sidebarToggle.addEventListener('change', async () => {
+    await storage.set({
+      removeSidebarShorts: sidebarToggle.checked,
+    });
   });
 })();

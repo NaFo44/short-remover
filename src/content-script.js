@@ -10,8 +10,18 @@ shortsStyle.textContent = `
   html[data-remove-youtube-shorts] ytd-rich-shelf-renderer[is-shorts] {
     display: none !important;
   }
+
+  html[data-remove-youtube-sidebar]
+    ytd-guide-entry-renderer > a#endpoint[title="Shorts"],
+  html[data-remove-youtube-sidebar]
+    ytd-guide-entry-renderer > a#endpoint[href^="/shorts"] {
+    display: none !important;
+  }
 `;
 document.documentElement.append(shortsStyle);
+
+const sidebarStorageKey = 'removeSidebarShorts';
+const sidebarEnabledAttribute = 'data-remove-youtube-sidebar';
 
 let removalEnabled = false;
 
@@ -28,6 +38,13 @@ function redirectShort() {
   location.replace(destination.href);
 }
 
+function applySidebarSetting(enabled) {
+  document.documentElement.toggleAttribute(
+    sidebarEnabledAttribute,
+    Boolean(enabled)
+  );
+}
+
 function applySetting(enabled) {
   removalEnabled = Boolean(enabled);
   document.documentElement.toggleAttribute(
@@ -38,17 +55,31 @@ function applySetting(enabled) {
 }
 
 api.storage.onChanged.addListener((changes, areaName) => {
-  const settingChange = changes[storageKey];
+  if (areaName !== 'sync') {
+    return;
+  }
 
-  if (areaName === 'sync' && settingChange) {
-    applySetting(settingChange.newValue ?? defaultEnabled);
+  const removalChange = changes[storageKey];
+
+  if (removalChange) {
+    applySetting(removalChange.newValue ?? defaultEnabled);
+  }
+
+  const sidebarChange = changes[sidebarStorageKey];
+
+  if (sidebarChange) {
+    applySidebarSetting(sidebarChange.newValue ?? false);
   }
 });
 
 document.addEventListener('yt-navigate-finish', redirectShort);
 
 (async () => {
-  const settings = await storage.get({ [storageKey]: defaultEnabled });
+  const settings = await storage.get({
+    [storageKey]: defaultEnabled,
+    [sidebarStorageKey]: false,
+  });
 
   applySetting(settings[storageKey]);
+  applySidebarSetting(settings[sidebarStorageKey]);
 })();
