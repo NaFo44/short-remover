@@ -1,0 +1,81 @@
+html,
+body {
+  width: 120px;
+  height: 120px;
+}
+
+body {
+  position: relative;
+  display: grid;
+  justify-content: center;
+  margin: 0;
+  background: #0f0f0f;
+  color: #f1f1f1;
+  font-family: system-ui, sans-serif;
+}
+
+.switch {
+  position: relative;
+  width: 60px;
+  height: 34px;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #ccc;
+  transition: background-color 0.25s;
+}
+
+.slider::before {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: white;
+  content: "";
+  transition: transform 0.25s;
+}
+
+.switch input:checked + .slider {
+  background: #ff0033;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(26px);
+}
+
+.switch input:focus-visible + .slider {
+  outline: 2px solid #3ea6ff;
+  outline-offset: 3px;
+}
+
+footer {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  text-align: center;
+  font-size: 11px;
+}
+
+footer a {
+  color: #3ea6ff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}

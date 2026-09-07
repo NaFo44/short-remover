@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html>
-  <head charset="UTF-8">
-    <title>Youtube Shorts remover</title>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>YouTube Shorts Remover</title>
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <button type="button" id="toggle" aria-pressed="false">Hide Youtube Shorts</button>
-    <p>By <a href="https://stardance.hackclub.com/@spectra">@spectra</a></p>
+    <label class="switch">
+      <input id="toggle" type="checkbox" aria-label="Disable Shorts removal">
+      <span class="slider" aria-hidden="true"></span>
+    </label>
+    <footer>
+      By <a href="https://stardance.hackclub.com/@spectra" target="_blank" rel="noopener noreferrer">@spectra</a>
+    </footer>
     <script src="popup.js"></script>
   </body>
 </html>

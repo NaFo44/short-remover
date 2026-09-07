@@ -1,42 +1,54 @@
+const api = globalThis.browser ?? globalThis.chrome;
+const storage = api.storage.sync;
+const storageKey = 'removeYtShorts';
+const defaultEnabled = true;
+const enabledAttribute = 'data-remove-youtube-shorts';
+
+const shortsStyle = document.createElement('style');
+shortsStyle.textContent = `
+  html[data-remove-youtube-shorts] ytd-reel-shelf-renderer,
+  html[data-remove-youtube-shorts] ytd-rich-shelf-renderer[is-shorts] {
+    display: none !important;
+  }
+`;
+document.documentElement.append(shortsStyle);
+
+let removalEnabled = false;
+
+function redirectShort() {
+  if (!removalEnabled || !location.pathname.startsWith('/shorts/')) {
+    return;
+  }
+
+  const videoId = location.pathname.split('/')[2];
+  const destination = videoId
+    ? new URL(`/watch?v=${encodeURIComponent(videoId)}`, location.origin)
+    : new URL('/', location.origin);
+
+  location.replace(destination.href);
+}
+
+function applySetting(enabled) {
+  removalEnabled = Boolean(enabled);
+  document.documentElement.toggleAttribute(
+    enabledAttribute,
+    removalEnabled
+  );
+  redirectShort();
+}
+
+api.storage.onChanged.addListener((changes, areaName) => {
+  const settingChange = changes[storageKey];
+
+  if (areaName === 'sync' && settingChange) {
+    applySetting(settingChange.newValue ?? defaultEnabled);
+  }
+});
+
+document.addEventListener('yt-navigate-finish', redirectShort);
+
 (async () => {
-    const storage =
-    typeof browser !== 'undefined'
-        ? browser.storage.local
-        : chrome.storage.sync;
-        
-    const { removeYtShorts = true } = await storage.get({ removeYtShorts: true });
+  const settings = await storage.get({ [storageKey]: defaultEnabled });
 
-    const api = globalThis.browser ?? globalThis.chrome;
-
-    api.storage.onChanged.addListener((changes, areaName) => {
-        if (
-            (areaName === 'local' || areaName === 'sync') &&
-            'removeYtShorts' in changes
-        ) {
-            location.reload();
-        }
-    });
-
-    if (removeYtShorts && location.host.includes('youtube.com')) {
-        const removeYtShorts = () => {
-            document.querySelectorAll('ytd-reel-shelf-renderer, ytd-rich-shelf-renderer[is-shorts]')
-                .forEach(el => el.remove());
-        };
-
-        if (location.pathname.includes('/shorts')) {
-            const pathArray = location.pathname.split('/');
-            const videoId = pathArray[pathArray.indexOf('shorts') + 1];
-            location.replace(
-                videoId ? `${location.protocol}//${location.host}//watch?v=${videoId}`
-                : `${location.protocol}//${location.host}`
-            )
-        }
-
-        new MutationObserver(removeYtShorts).observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
-
-        removeYtShorts();
-    }
+  applySetting(settings[storageKey]);
 })();

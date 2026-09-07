@@ -1,28 +1,23 @@
 const api = globalThis.browser ?? globalThis.chrome;
 const toggle = document.querySelector('#toggle');
+const storage = api.storage.sync;
+const storageKey = 'removeYtShorts';
+const defaultEnabled = true;
 
 function render(enabled) {
-  toggle.setAttribute('aria-pressed', String(enabled));
-  toggle.textContent = enabled
-    ? 'Show YouTube Shorts'
-    : 'Hide YouTube Shorts';
+  toggle.checked = enabled;
+  toggle.setAttribute(
+    'aria-label',
+    enabled ? 'Disable Shorts removal' : 'Enable Shorts removal'
+  );
 }
 
 (async () => {
-  const storage =
-  typeof browser !== 'undefined'
-    ? browser.storage.local
-    : chrome.storage.sync;
-    
-  const { removeYtShorts = true } =
-    await storage.get({ removeYtShorts: true });
+  const settings = await storage.get({ [storageKey]: defaultEnabled });
 
-  render(removeYtShorts);
+  render(settings[storageKey]);
 
-  toggle.addEventListener('click', async () => {
-    const enabled = toggle.getAttribute('aria-pressed') !== 'true';
-
-    await storage.set({ removeYtShorts: enabled });
-    render(enabled);
+  toggle.addEventListener('change', async () => {
+    await storage.set({ [storageKey]: toggle.checked });
   });
 })();
