@@ -5,6 +5,7 @@
 ![Picture of the extension](demo.png)
 
 This browser extension can dynamically remove Shorts from your Youtube Feed.
+It does not remove them from the search page.
 
 ## Features
 
